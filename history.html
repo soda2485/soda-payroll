@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soda The Salon — Payroll History</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #1a1a1a; }
+  nav { background: #fff; border-bottom: 0.5px solid rgba(0,0,0,0.1); padding: 0 2rem; display: flex; align-items: center; gap: 2rem; height: 52px; }
+  .nav-brand { font-weight: 500; font-size: 15px; color: #1a1a1a; text-decoration: none; }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a { font-size: 14px; color: #666; text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+  .nav-links a:hover { color: #1a1a1a; }
+  .nav-links a.active { color: #185FA5; border-bottom-color: #185FA5; }
+  main { padding: 2rem; max-width: 1100px; }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 1.5rem; }
+  .metrics { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .metric { background: #fff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 1rem 1.25rem; flex: 1; min-width: 130px; }
+  .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .metric-value { font-size: 20px; font-weight: 500; }
+  .metric-sub { font-size: 11px; color: #888; margin-top: 4px; }
+  .table-wrap { background: #fff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #2C2C2C; color: #fff; padding: 10px 14px; text-align: left; font-weight: 500; font-size: 12px; cursor: pointer; user-select: none; white-space: nowrap; }
+  thead th:hover { background: #3a3a3a; }
+  thead th.sorted-asc::after { content: ' ↑'; opacity: 0.8; }
+  thead th.sorted-desc::after { content: ' ↓'; opacity: 0.8; }
+  tbody tr { border-bottom: 0.5px solid rgba(0,0,0,0.06); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) { background: #fafaf8; }
+  tbody tr:hover { background: #f0f4fb; }
+  td { padding: 10px 14px; color: #1a1a1a; }
+  td.muted { color: #888; font-size: 12px; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.pct { text-align: right; font-variant-numeric: tabular-nums; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .pill-good { background: #EAF3DE; color: #3B6D11; }
+  .pill-warn { background: #FAEEDA; color: #854F0B; }
+  .pill-bad  { background: #FCEBEB; color: #A32D2D; }
+  .updated { font-size: 11px; color: #aaa; margin-top: 1rem; text-align: right; }
+  @media (max-width: 700px) { main { padding: 1rem; } td, th { padding: 8px 10px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">Soda The Salon</a>
+  <div class="nav-links">
+    <a href="index.html">Revenue chart</a>
+    <a href="history.html" class="active">Payroll history</a>
+  </div>
+</nav>
+
+<main>
+  <h1>Payroll history</h1>
+
+  <div class="metrics">
+    <div class="metric">
+      <p class="metric-label">Total revenue (YTD)</p>
+      <p class="metric-value" id="mRev">—</p>
+      <p class="metric-sub">26 periods</p>
+    </div>
+    <div class="metric">
+      <p class="metric-label">Total Team IGA</p>
+      <p class="metric-value" id="mIga">—</p>
+      <p class="metric-sub">payroll cost</p>
+    </div>
+    <div class="metric">
+      <p class="metric-label">Avg IGA % of revenue</p>
+      <p class="metric-value" id="mPct">—</p>
+      <p class="metric-sub">excl. Jan holiday period</p>
+    </div>
+    <div class="metric">
+      <p class="metric-label">Highest revenue period</p>
+      <p class="metric-value" id="mPeak">—</p>
+      <p class="metric-sub" id="mPeakDate">—</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="histTable">
+      <thead>
+        <tr>
+          <th data-col="0">Period end</th>
+          <th data-col="1" class="num">Revenue</th>
+          <th data-col="2" class="num">Staff payroll</th>
+          <th data-col="3" class="num">Director IGA</th>
+          <th data-col="4" class="num">Team IGA cost</th>
+          <th data-col="5" class="pct">IGA %</th>
+          <th data-col="6">Efficiency</th>
+        </tr>
+      </thead>
+      <tbody id="histBody"></tbody>
+    </table>
+  </div>
+  <p class="updated">Last updated: 1 May 2026</p>
+</main>
+
+<script>
+const PERIODS = [
+  { end:'11 May 2025', dates:'28 Apr – 11 May 2025',   rev:33737,  staff:13260.81, dirIga:0,        iga:13260.81 },
+  { end:'27 May 2025', dates:'12 May – 25 May 2025',   rev:28830,  staff:13754.74, dirIga:0,        iga:13754.74 },
+  { end:'10 Jun 2025', dates:'26 May – 8 Jun 2025',    rev:27086,  staff:14118.65, dirIga:0,        iga:14118.65 },
+  { end:'24 Jun 2025', dates:'9 Jun – 22 Jun 2025',    rev:28624,  staff:12544.72, dirIga:440.75,   iga:12985.47 },
+  { end:'8 Jul 2025',  dates:'23 Jun – 6 Jul 2025',    rev:28465,  staff:12637.38, dirIga:594.50,   iga:13231.88 },
+  { end:'22 Jul 2025', dates:'7 Jul – 20 Jul 2025',    rev:33373,  staff:12306.30, dirIga:799.50,   iga:13105.80 },
+  { end:'5 Aug 2025',  dates:'21 Jul – 3 Aug 2025',    rev:33392,  staff:12585.97, dirIga:328.00,   iga:12913.97 },
+  { end:'19 Aug 2025', dates:'4 Aug – 17 Aug 2025',    rev:27598,  staff:10890.48, dirIga:1172.60,  iga:12063.08 },
+  { end:'2 Sep 2025',  dates:'18 Aug – 31 Aug 2025',    rev:33898,  staff:12035.77, dirIga:1127.50,  iga:13163.27 },
+  { end:'16 Sep 2025', dates:'1 Sep – 14 Sep 2025',   rev:36745,  staff:12606.07, dirIga:1886.00,  iga:14492.07 },
+  { end:'30 Sep 2025', dates:'—',                      rev:36745,  staff:12896.36, dirIga:1172.60,  iga:14068.96 },
+  { end:'12 Oct 2025', dates:'28 Sep – 12 Oct 2025',   rev:32137,  staff:12720.85, dirIga:1209.50,  iga:13930.35 },
+  { end:'28 Oct 2025', dates:'—',                      rev:33985,  staff:13329.50, dirIga:1254.60,  iga:14584.10 },
+  { end:'11 Nov 2025', dates:'—',                      rev:35061,  staff:13734.26, dirIga:1373.50,  iga:15107.76 },
+  { end:'25 Nov 2025', dates:'—',                      rev:39609,  staff:14278.50, dirIga:1271.00,  iga:15549.50 },
+  { end:'7 Dec 2025',  dates:'24 Nov – 7 Dec 2025',    rev:40364,  staff:14582.93, dirIga:1394.00,  iga:15976.93 },
+  { end:'21 Dec 2025', dates:'8 Dec – 21 Dec 2025',    rev:47726,  staff:15633.31, dirIga:1927.00,  iga:17560.31 },
+  { end:'4 Jan 2026',  dates:'22 Dec – 4 Jan 2026',    rev:16354,  staff:11726.05, dirIga:184.50,   iga:11910.55 },
+  { end:'20 Jan 2026', dates:'—',                      rev:36545,  staff:13507.17, dirIga:725.70,   iga:14232.87 },
+  { end:'3 Feb 2026',  dates:'—',                      rev:36650,  staff:13637.74, dirIga:1763.00,  iga:15400.74 },
+  { end:'17 Feb 2026', dates:'—',                      rev:38192,  staff:15601.08, dirIga:574.00,   iga:16175.08 },
+  { end:'3 Mar 2026',  dates:'—',                      rev:42144,  staff:16553.17, dirIga:471.50,   iga:17024.67 },
+  { end:'17 Mar 2026', dates:'—',                      rev:37835,  staff:14260.15, dirIga:1066.00,  iga:15326.15 },
+  { end:'31 Mar 2026', dates:'—',                      rev:33614,  staff:11997.76, dirIga:1096.75,  iga:13094.51 },
+  { end:'14 Apr 2026', dates:'—',                      rev:29782,  staff:10984.71, dirIga:956.30,   iga:11941.01 },
+  { end:'28 Apr 2026', dates:'—',                      rev:38558,  staff:13458.71, dirIga:1025.00,  iga:14483.71 },
+];
+
+const fmt = v => '$' + Math.round(v).toLocaleString('en-AU');
+const pct = (a,b) => (a/b*100).toFixed(1) + '%';
+
+function effPill(p) {
+  if (p > 50) return '<span class="pill pill-bad">High cost</span>';
+  if (p > 42) return '<span class="pill pill-warn">Moderate</span>';
+  return '<span class="pill pill-good">Efficient</span>';
+}
+
+function render(data) {
+  const tbody = document.getElementById('histBody');
+  tbody.innerHTML = data.map(r => {
+    const p = r.iga / r.rev * 100;
+    return `<tr>
+      <td>${r.end}</td>
+      <td class="num">${fmt(r.rev)}</td>
+      <td class="num">${fmt(r.staff)}</td>
+      <td class="num">${fmt(r.dirIga)}</td>
+      <td class="num">${fmt(r.iga)}</td>
+      <td class="pct">${p.toFixed(1)}%</td>
+      <td>${effPill(p)}</td>
+    </tr>`;
+  }).join('');
+}
+
+render(PERIODS);
+
+const totalRev = PERIODS.reduce((s,r) => s+r.rev, 0);
+const totalIga = PERIODS.reduce((s,r) => s+r.iga, 0);
+const excJan   = PERIODS.filter(r => r.rev > 20000);
+const avgPct   = excJan.reduce((s,r) => s + r.iga/r.rev*100, 0) / excJan.length;
+const peak     = PERIODS.reduce((a,b) => a.rev > b.rev ? a : b);
+
+document.getElementById('mRev').textContent = fmt(totalRev);
+document.getElementById('mIga').textContent = fmt(totalIga);
+document.getElementById('mPct').textContent = avgPct.toFixed(1) + '%';
+document.getElementById('mPeak').textContent = fmt(peak.rev);
+document.getElementById('mPeakDate').textContent = peak.end;
+
+let sortCol = -1, sortDir = 1;
+document.querySelectorAll('thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = +th.dataset.col;
+    if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
+    document.querySelectorAll('thead th').forEach(t => t.classList.remove('sorted-asc','sorted-desc'));
+    th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+    const vals = [r => r.end, r => r.rev, r => r.staff, r => r.dirIga, r => r.iga, r => r.iga/r.rev, r => r.iga/r.rev];
+    const sorted = [...PERIODS].sort((a,b) => {
+      const va = vals[col](a), vb = vals[col](b);
+      return (typeof va === 'string' ? va.localeCompare(vb) : va - vb) * sortDir;
+    });
+    render(sorted);
+  });
+});
+</script>
+</body>
+</html>
