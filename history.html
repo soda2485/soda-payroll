@@ -45,9 +45,9 @@
 <body>
 
 <nav>
-  <a class="nav-brand" href="staff-cost.html">Soda The Salon</a>
+  <a class="nav-brand" href="index.html">Soda The Salon</a>
   <div class="nav-links">
-    <a href="staff-cost.html">Revenue chart</a>
+    <a href="index.html">Revenue chart</a>
     <a href="history.html" class="active">Payroll history</a>
   </div>
 </nav>
@@ -59,7 +59,7 @@
     <div class="metric">
       <p class="metric-label">Total revenue (YTD)</p>
       <p class="metric-value" id="mRev">—</p>
-      <p class="metric-sub">28 periods</p>
+      <p class="metric-sub">22 periods</p>
     </div>
     <div class="metric">
       <p class="metric-label">Total Team IGA</p>
@@ -94,17 +94,11 @@
       <tbody id="histBody"></tbody>
     </table>
   </div>
-  <p class="updated">Last updated: 1 May 2026</p>
+  <p class="updated">Last updated: 30 April 2026</p>
 </main>
 
 <script>
 const PERIODS = [
-  { end:'27 Apr 2025', dates:'14 Apr – 27 Apr 2025',   rev:24704,  staff:11735.19, dirIga:0,        iga:11735.19 },
-  { end:'11 May 2025', dates:'28 Apr – 11 May 2025',   rev:33737,  staff:13260.81, dirIga:0,        iga:13260.81 },
-  { end:'27 May 2025', dates:'12 May – 25 May 2025',   rev:28830,  staff:13754.74, dirIga:0,        iga:13754.74 },
-  { end:'10 Jun 2025', dates:'26 May – 8 Jun 2025',    rev:27086,  staff:14118.65, dirIga:0,        iga:14118.65 },
-  { end:'24 Jun 2025', dates:'9 Jun – 22 Jun 2025',    rev:28624,  staff:12544.72, dirIga:440.75,   iga:12985.47 },
-  { end:'8 Jul 2025',  dates:'23 Jun – 6 Jul 2025',    rev:28465,  staff:12637.38, dirIga:594.50,   iga:13231.88 },
   { end:'22 Jul 2025', dates:'7 Jul – 20 Jul 2025',    rev:33373,  staff:12306.30, dirIga:799.50,   iga:13105.80 },
   { end:'5 Aug 2025',  dates:'21 Jul – 3 Aug 2025',    rev:33392,  staff:12585.97, dirIga:328.00,   iga:12913.97 },
   { end:'19 Aug 2025', dates:'4 Aug – 17 Aug 2025',    rev:27598,  staff:10890.48, dirIga:1172.60,  iga:12063.08 },
