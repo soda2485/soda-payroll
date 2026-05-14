@@ -31,9 +31,9 @@
 <body>
 
 <nav>
-  <a class="nav-brand" href="staff-cost.html">Soda The Salon</a>
+  <a class="nav-brand" href="index.html">Soda The Salon</a>
   <div class="nav-links">
-    <a href="staff-cost.html" class="active">Revenue chart</a>
+    <a href="index.html" class="active">Revenue chart</a>
     <a href="history.html">Payroll history</a>
   </div>
 </nav>
@@ -65,8 +65,8 @@
 </div>
 
 <div class="legend">
-  <span><span class="swatch" style="background:#185FA5;"></span>Revenue</span>
-  <span><span class="swatch" style="background:#B54A00;"></span>Team IGA Cost</span>
+  <span><span class="swatch" style="background:#185FA5;"></span>Revenue (left axis)</span>
+  <span><span class="swatch" style="background:#B54A00;"></span>Team IGA Cost (right axis)</span>
 </div>
 
 <div class="chart-wrap">
@@ -78,9 +78,9 @@
 
 <script>
 const DATA = {
-  labels:  ['27 Apr 25','11 May 25','27 May 25','10 Jun 25','24 Jun 25','8 Jul 25','22 Jul 25','5 Aug 25','19 Aug 25','2 Sep 25','16 Sep 25','30 Sep 25','12 Oct 25','28 Oct 25','11 Nov 25','25 Nov 25','7 Dec 25','21 Dec 25','4 Jan 26','20 Jan 26','3 Feb 26','17 Feb 26','3 Mar 26','17 Mar 26','31 Mar 26','14 Apr 26','28 Apr 26','10 May 26'],
-  revenue: [24704,33737,28830,27086,28624,28465,33373,33392,27598,33898,36745,36745,32137,33985,35061,39609,40364,47726,16354,36545,36650,38192,42144,37835,33614,29782,38558,37684],
-  iga:     [11735.19,13260.81,13754.74,14118.65,12985.47,13231.88,13105.80,12913.97,12063.08,13163.27,14492.07,14068.96,13930.35,14584.10,15107.76,15549.50,15976.93,17560.31,11910.55,14232.87,15400.74,16175.08,17024.67,15326.15,13094.51,11941.01,14483.71,16267.46]
+  labels:  ['22 Jul 25','5 Aug 25','19 Aug 25','2 Sep 25','16 Sep 25','30 Sep 25','12 Oct 25','28 Oct 25','11 Nov 25','25 Nov 25','7 Dec 25','21 Dec 25','4 Jan 26','20 Jan 26','3 Feb 26','17 Feb 26','3 Mar 26','17 Mar 26','31 Mar 26','14 Apr 26','28 Apr 26','10 May 26'],
+  revenue: [33373,33392,27598,33898,36745,36745,32137,33985,35061,39609,40364,47726,16354,36545,36650,38192,42144,37835,33614,29782,38558,37684],
+  iga:     [13105.80,12913.97,12063.08,13163.27,14492.07,14068.96,13930.35,14584.10,15107.76,15549.50,15976.93,17560.31,11910.55,14232.87,15400.74,16175.08,17024.67,15326.15,13094.51,11941.01,14483.71,16267.46]
 };
 
 const fmt = v => '$' + Math.round(v).toLocaleString('en-AU');
@@ -95,7 +95,7 @@ document.getElementById('peakRevDate').textContent = DATA.labels[peakIdx];
 document.getElementById('avgRev').textContent = fmt(avgRev);
 document.getElementById('avgIga').textContent = fmt(avgIga);
 document.getElementById('igaPct').textContent = (avgIga/avgRev*100).toFixed(1) + '%';
-document.getElementById('updatedTs').textContent = 'Last updated: 1 May 2026 (2)';
+document.getElementById('updatedTs').textContent = 'Last updated: 30 April 2026';
 
 new Chart(document.getElementById('chart'), {
   type: 'line',
@@ -138,16 +138,7 @@ new Chart(document.getElementById('chart'), {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: ctx => ' $' + Math.round(ctx.parsed.y).toLocaleString('en-AU'),
-          afterBody: items => {
-            const idx = items[0].dataIndex;
-            const rev = DATA.revenue[idx];
-            const iga = DATA.iga[idx];
-            if (rev && iga) {
-              return [' IGA ' + (iga / rev * 100).toFixed(1) + '%'];
-            }
-            return [];
-          }
+          label: ctx => ' ' + ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString('en-AU')
         }
       }
     },
@@ -160,7 +151,8 @@ new Chart(document.getElementById('chart'), {
         type: 'linear',
         position: 'left',
         min: 0,
-        ticks: { font: { size: 11 }, callback: fmtK },
+        max: 55000,
+        ticks: { font: { size: 11 }, color: '#1a1a1a', callback: fmtK },
         grid: { color: 'rgba(0,0,0,0.06)' }
       }
     }
